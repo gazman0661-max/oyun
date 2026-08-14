@@ -1,0 +1,62 @@
+name: Build Android APK
+
+# Her main/master push'unda ve istenirse elle (Actions sekmesinden
+# "Run workflow") calisir. Sadece Android icin: debug APK (test/kurulum
+# icin) + release AAB (Play Store'a yuklemek icin) uretir. Ikisi de
+# TEK bir "Artifacts" zip dosyasi olarak indirilebilir. Ekstra bir
+# imzalama anahtari GEREKMEZ: debug APK debug keystore ile imzalanir,
+# AAB ise imzasiz cikar (Play Console'un "App Signing" adimina
+# yuklenmeden once Play Console kendi imzalar ya da sen imzalarsin).
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+jobs:
+  build-android:
+    name: Build debug APK + release AAB
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run analyzer
+        run: flutter analyze
+        continue-on-error: true
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Build release AAB (Play Store icin)
+        run: flutter build appbundle --release
+
+      - name: Collect outputs for single zip
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-debug.apk dist/astrofelyx-debug.apk
+          cp build/app/outputs/bundle/release/app-release.aab dist/astrofelyx-release.aab
+
+      - name: Upload build (single zip artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: astrofelyx-android-build
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
