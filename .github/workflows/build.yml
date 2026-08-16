@@ -5,8 +5,8 @@ name: Build Android APK
 # icin) + release AAB (Play Store'a yuklemek icin) uretir. Ikisi de
 # TEK bir "Artifacts" zip dosyasi olarak indirilebilir. Ekstra bir
 # imzalama anahtari GEREKMEZ: debug APK debug keystore ile imzalanir,
-# AAB ise imzasiz cikar (Play Console'un "App Signing" adimina
-# yuklenmeden once Play Console kendi imzalar ya da sen imzalarsin).
+# AAB ise imzasiz çıkar (Play Console'un "App Signing" adimina
+# yuklenmeden once Play Console kendi imzalar ya da sen imzalarsın).
 on:
   push:
     branches: [main, master]
@@ -21,6 +21,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker system prune -af || true
+          df -h
 
       - name: Set up Java
         uses: actions/setup-java@v4
