@@ -1,0 +1,63 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Odullu reklamlarin (Appodeal Mobile Ads) ve Play Games bulut kaydinin
+         calisabilmesi icin release build'de de gerekli. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Kozmik Ikmal / gunluk seri hatirlatma bildirimleri icin. Android
+         13+ (API 33+) bildirim gostermeden once bu izni ister; plugin
+         calisma zamaninda kullaniciya sorar. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Cihaz yeniden baslatildiginda zamanlanmis bildirimlerin
+         kaybolmamasi icin. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <application
+        android:label="AstroFelyx: Galaxy Puzzle"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Flutter'in ilk acilis (splash) temasindan Flutter UI temasina
+                 gecisini yonetmesi icin gerekli meta-data. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Flutter'in yeni (v2) Android embedding'ini kullandigini belirtir. -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+        <!-- Play Games Services uygulama kimligi. Play Console >
+             "Play Games Services" bolumunden alacagin gercek App ID ile
+             degistir; degistirmeden Play Games girisi CALISMAZ.
+             bkz. README_PLAY_GAMES.md -->
+        <meta-data
+            android:name="com.google.android.gms.games.APP_ID"
+            android:value="317205084582" />
+
+        <!-- flutter_local_notifications: cihaz yeniden baslatildiginda
+             (veya uygulama guncellendiginde) zamanlanmis "Kozmik Ikmal
+             hazir" / "gunluk seri" bildirimlerini yeniden kurar. -->
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
+    </application>
+</manifest>
