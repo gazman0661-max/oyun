@@ -1,7 +1,7 @@
 name: astrofelyx_galaxy_puzzle
 description: "AstroFelyx: Galaxy Puzzle — Uzay temali bir top/renk siralama (sort) bulmacasi. Gezegen gorselleri projeye gomulu (bundled) asset'tir; tup/kapak/izgara gibi diger tum arayuz ogeleri CustomPainter ile vektorel cizilir. Hicbir network/link istegi yapilmaz."
 publish_to: 'none'
-version: 2.1.3+120
+version: 2.1.5+122
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
