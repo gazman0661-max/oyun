@@ -104,6 +104,19 @@ class _OrbitBoardState extends State<OrbitBoard> with TickerProviderStateMixin {
   final TransformationController _viewerController = TransformationController();
   Object? _fitForLevel;
 
+  // KOK NEDEN DUZELTMESI: dokunma isleyicileri (onPanStart/onPanUpdate)
+  // eskiden `context.findRenderObject()` kullaniyordu - fakat oradaki
+  // `context`, LayoutBuilder'in DIS context'iydi, GestureDetector'in kendi
+  // context'i degildi. Zoom gerektiginde (kucuk ekran + cok halka, ornegin
+  // ileri seviyelerde 5-6 halka) InteractiveViewer devreye girince bu dis
+  // RenderBox, zoom/pan donusumunden ETKILENMEMIS oluyordu; ama `center` ve
+  // halka bantlari donusum SONRASI buyutulmus mantiksal tuval uzerinden
+  // hesaplaniyordu. Sonuc: parmak konumu ile hesaplanan aci arasinda sabit
+  // bir kayma olusuyor, bu da ozellikle en ic (dar) bantlarda dokunusun
+  // komsu halkaya kaymasina yol aciyordu. Bu key, GestureDetector'in KENDI
+  // (donusum sonrasi dogru) RenderBox'ina erismek icin eklendi.
+  final GlobalKey _boardKey = GlobalKey();
+
   void _flash(int ringIndex) {
     setState(() => _flashRing = ringIndex);
     Future.delayed(const Duration(milliseconds: 420), () {
@@ -344,12 +357,17 @@ class _OrbitBoardState extends State<OrbitBoard> with TickerProviderStateMixin {
                   final center =
                       Offset(logicalSize.width / 2, logicalSize.height / 2);
                   final board = GestureDetector(
+                    key: _boardKey,
                     onPanStart: (details) {
-                      final box = context.findRenderObject() as RenderBox;
+                      final box = _boardKey.currentContext?.findRenderObject()
+                          as RenderBox?;
+                      if (box == null) return;
                       _onPanStart(details, box, center, step, ringCount);
                     },
                     onPanUpdate: (details) {
-                      final box = context.findRenderObject() as RenderBox;
+                      final box = _boardKey.currentContext?.findRenderObject()
+                          as RenderBox?;
+                      if (box == null) return;
                       _onPanUpdate(details, box, center);
                     },
                     onPanEnd: _onPanEnd,
