@@ -1,0 +1,74 @@
+name: astrofelyx_galaxy_puzzle
+description: "AstroFelyx: Galaxy Puzzle — Uzay temali bir top/renk siralama (sort) bulmacasi. Gezegen gorselleri projeye gomulu (bundled) asset'tir; tup/kapak/izgara gibi diger tum arayuz ogeleri CustomPainter ile vektorel cizilir. Hicbir network/link istegi yapilmaz."
+publish_to: 'none'
+version: 2.1.5+122
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: ">=3.38.1"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  flutter_local_notifications: ^21.0.0
+  timezone: ^0.11.1
+  flutter_timezone: ^5.1.0
+  # Oyuncu ilerlemesini (xp, yildiz, banka haklari, gunluk seri vb.)
+  # cihazda kalici olarak saklamak icin.
+  shared_preferences: ^2.2.2
+  # Kod icinde sentezlenen (link/dosya gerektirmeyen) kisa ses efektlerini
+  # calmak icin. Ses baytlari runtime'da uretilir, hicbir sarki/ses dosyasi
+  # veya internet erisimi gerekmez.
+  audioplayers: ^6.8.1
+  # Gunluk sonuc karti (skor gorseli) uygulama disina (WhatsApp/Instagram/
+  # vb.) paylasilirken sistemin yerlesik "paylas" sayfasini acmak icin.
+  share_plus: ^13.1.0
+  # Paylasilacak sonuc kartinin PNG olarak yazilacagi gecici dosya yolunu
+  # bulmak icin (share_plus'in dosya paylasabilmesi icin gerekli).
+  path_provider: ^2.1.4
+  # Appodeal Mobile Ads SDK (odullu/rewarded reklamlar). Resmi Appodeal
+  # Flutter eklentisi — Temmuz 2026 itibariyla guncel stabil surum: 4.1.0.
+  # App Key ve test modu ayari lib/services/ad_service.dart icinde.
+  stack_appodeal_flutter: ^4.1.0
+  # Gizlilik Politikasi ve Kullanim Sartlari sayfalarini, kullaniciyi
+  # oyundan/uygulamadan hic cikarmadan, uygulama icinde (in-app) acmak
+  # icin. Google'in resmi WebView paketi.
+  webview_flutter: ^4.7.0
+  # Firebase Analytics: Appodeal panelinde GORUNMEYEN verileri (yeni/eski
+  # kullanici ayrimi, retention, kullanici basina rewarded/interstitial
+  # izleme sayisi, oturum bilgisi) takip etmek icin. firebase_options.dart
+  # ILE DEGIL, native android/app/google-services.json dosyasiyla calisir
+  # (bkz. lib/services/analytics_service.dart ve main.dart) — boylece
+  # `flutterfire configure` CLI'sini calistirmaya GEREK KALMAZ, sadece
+  # google-services.json dosyasinin android/app/ icine eklenmesi yeterli.
+  firebase_core: ^4.4.0
+  firebase_analytics: ^12.1.2
+  # Native Play Store / App Store puanlama dialogunu (in-app review)
+  # acmak icin. Sadece RatePromptService icinden, baglamsal sinyallerle
+  # (temiz kazanim vb.) cagrilir — bkz. lib/services/rate_prompt_service.dart.
+  in_app_review: ^2.0.9
+  # Haftalik gorevin (bkz. NetworkTimeService) TUM oyuncularda ayni anda
+  # (UTC Pazartesi 00:00) baslayip bitmesi icin cihaz saatinden bagimsiz,
+  # internet (NTP) tabanli gercek zamani almak icin.
+  ntp: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # Gezegen gorselleri (assets/planets/) kullaniciyla birlikte hazirlanan,
+  # projeye GOMULU (bundled) PNG dosyalaridir — calisma zamaninda hicbir
+  # network/link istegi yapilmaz. Tup/kapak/izgara gibi diger tum arayuz
+  # ogeleri hala dogrudan Dart kodu icinde CustomPainter ile vektorel
+  # olarak ciziliyor.
+  assets:
+    - assets/planets/
+    - assets/currency/
+    - assets/audio/
+    - assets/audio/sfx/
+    - assets/icon/
+    - assets/fx/
