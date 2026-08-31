@@ -1,0 +1,11 @@
+# Bu dosyayi "key.properties" olarak (uzantisiz, .example kismi olmadan)
+# android/ klasorune kopyala ve AstroFelyx'i (com.astrofelyx.pro) ilk
+# yayinlarken kullandigin GERCEK keystore bilgilerini gir.
+#
+# ONEMLI: key.properties dosyasini asla paylasma / git'e ekleme
+# (zaten .gitignore'a eklemen onerilir).
+
+storePassword=BURAYA_KEYSTORE_SIFRESI
+keyPassword=BURAYA_KEY_SIFRESI
+keyAlias=BURAYA_KEY_ALIAS
+storeFile=BURAYA_KEYSTORE_DOSYA_YOLU (orn: ../astrofelyx-release-key.jks)
