@@ -14,14 +14,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    env:
-      # Play'e yuklenecek versionCode, AstroFelyx'in son versionCode'undan BUYUK olmali.
-      # Elle girmezsen: run numarasi + repo degiskeni VERSION_CODE_OFFSET
-      # (Settings > Secrets and variables > Actions > Variables).
-      BUILD_NUMBER: ${{ inputs.build_number || (github.run_number + fromJSON(vars.VERSION_CODE_OFFSET || '0')) }}
 
     steps:
       - uses: actions/checkout@v4
+
+      # Play'e yuklenecek versionCode, AstroFelyx'in son versionCode'undan BUYUK olmali.
+      # Elle girersen o kullanilir; girmezsen: run numarasi + repo degiskeni
+      # VERSION_CODE_OFFSET (Settings > Secrets and variables > Actions > Variables).
+      - name: Build numarasi
+        env:
+          INPUT_BN: ${{ inputs.build_number }}
+          OFFSET: ${{ vars.VERSION_CODE_OFFSET }}
+          RUN_NO: ${{ github.run_number }}
+        run: |
+          if [ -n "$INPUT_BN" ]; then
+            BN="$INPUT_BN"
+          else
+            BN=$(( RUN_NO + ${OFFSET:-0} ))
+          fi
+          echo "BUILD_NUMBER=$BN" >> "$GITHUB_ENV"
+          echo "versionCode: $BN"
 
       - uses: actions/setup-java@v4
         with:
