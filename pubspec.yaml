@@ -1,7 +1,7 @@
 name: fastfood_merge
 description: "Merge Dünyaları - Çok Dünyalı Merge Oyunu"
 publish_to: 'none'
-version: 1.0.0+1
+version: 2.1.7+124
 
 environment:
   sdk: '>=3.10.0 <4.0.0'
