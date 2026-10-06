@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Play Console > Oyun hizmetleri > yapilandirma sayfasindaki "Uygulama kimligi"
-         (sadece rakamlar, ornegin 123456789012). Bunu degistirmeden Play Games girisi calismaz. -->
-    <string name="app_id" translatable="false">317205084582</string>
-</resources>
