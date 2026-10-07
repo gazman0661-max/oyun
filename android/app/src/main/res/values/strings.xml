@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Push bildirimi (gelen kutusu). Worker FCM'de title_loc_key/body_loc_key olarak bu adlari gonderir;
+         mesajin kendi icerigi bildirimde gorunmez. -->
+    <string name="inbox_push_title">World Merge</string>
+    <string name="inbox_push_body">You have a message in your inbox 📬</string>
+</resources>

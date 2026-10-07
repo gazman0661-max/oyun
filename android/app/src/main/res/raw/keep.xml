@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Push bildirim metinleri FCM tarafindan ada gore (calisma zamaninda) bulunur; kaynak kucultme
+     (shrinkResources) bunlari "kullanilmiyor" sanip silmesin. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/inbox_push_title,@string/inbox_push_body,@drawable/ic_stat_notify,@color/notification_color" />
