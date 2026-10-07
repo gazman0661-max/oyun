@@ -1,7 +1,0 @@
-# Bu dosyayi "key.properties" olarak (.example olmadan) android/ klasorune
-# kopyala ve Merge Dunyalari'ni Play'e yuklerken kullanacagin keystore
-# bilgilerini gir. Bu dosyayi ve .jks'yi ASLA paylasma / git'e ekleme.
-storePassword=BURAYA_KEYSTORE_SIFRESI
-keyPassword=BURAYA_KEY_SIFRESI
-keyAlias=BURAYA_KEY_ALIAS
-storeFile=BURAYA_KEYSTORE_DOSYA_YOLU (orn: ../merge-release-key.jks)
