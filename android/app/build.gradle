@@ -100,13 +100,16 @@ android {
     buildTypes {
         release {
             // key.properties eklendiyse GERCEK (AstroFelyx'i yayinladigin)
-            // keystore ile imzalar. Eklenmediyse HIC IMZALAMAZ (null) —
-            // boylece CI'da (GitHub Actions) uretilen .apk/.aab, cmd
-            // uzerinden jarsigner/apksigner ile SENIN imzalayabilecegin
-            // gercekten imzasiz bir dosya olur. (Debug imzasiyla derlenip
-            // sonradan cmd'den yeniden imzalanamaz, o yuzden debug fallback
-            // KALDIRILDI.)
-            signingConfig hasKeystoreProperties ? signingConfigs.release : null
+            // keystore ile imzalar.
+            // key.properties YOKSA Flutter'in otomatik DEBUG imzasi kullanilir
+            // (GitHub'da derlenen APK dogrudan telefona kurulur; eski build.yml
+            // ile ayni davranis). Play'e gidecek IMZASIZ aab icin ortam
+            // degiskeni: UNSIGNED_RELEASE=true (android-release.yml'de ayarli),
+            // o zaman imzasiz uretilir ve bilgisayarda jarsigner ile imzalarsin.
+            def wantUnsigned = System.getenv('UNSIGNED_RELEASE') == 'true'
+            signingConfig hasKeystoreProperties
+                    ? signingConfigs.release
+                    : (wantUnsigned ? null : signingConfigs.debug)
         }
     }
 }
