@@ -1,14 +1,10 @@
 name: Build
 
-# Elle: Actions > Build > Run workflow  (AAB de istersen kutuyu isaretle)
-# Otomatik: main/master'a push -> sadece APK.
+# Elle: Actions > Build > Run workflow
+# Otomatik: main/master'a push
+# Her calismada hem APK hem AAB uretir.
 on:
   workflow_dispatch:
-    inputs:
-      build_aab:
-        description: 'Play icin IMZASIZ AAB de uret'
-        type: boolean
-        default: false
   push:
     branches: [main, master]
 
@@ -54,21 +50,18 @@ jobs:
           APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
           "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
 
+      # AAB: IMZASIZ uretilir (UNSIGNED_RELEASE), bilgisayarda jarsigner ile imzalarsin.
+      - name: AAB (imzasiz)
+        run: flutter build appbundle --release
+        env:
+          UNSIGNED_RELEASE: 'true'
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      # AAB (istege bagli): IMZASIZ uretilir, bilgisayarda jarsigner ile imzalarsin.
-      - name: AAB (imzasiz)
-        if: ${{ inputs.build_aab == true }}
-        run: flutter build appbundle --release
-        env:
-          UNSIGNED_RELEASE: 'true'
-
-      - name: AAB yukle
-        if: ${{ inputs.build_aab == true }}
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: app-release-aab-unsigned
           path: build/app/outputs/bundle/release/app-release.aab
