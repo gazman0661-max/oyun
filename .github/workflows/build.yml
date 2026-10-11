@@ -1,69 +1,74 @@
-name: Build Android (AAB + APK)
+name: Build
 
+# Elle: Actions > Build > Run workflow  (AAB de istersen kutuyu isaretle)
+# Otomatik: main/master'a push -> sadece APK.
 on:
   workflow_dispatch:
     inputs:
-      build_number:
-        description: "versionCode (bos birakirsan run numarasi + VERSION_CODE_OFFSET kullanilir)"
-        required: false
-        default: ""
+      build_aab:
+        description: 'Play icin IMZASIZ AAB de uret'
+        type: boolean
+        default: false
   push:
     branches: [main, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-
     steps:
       - uses: actions/checkout@v4
-
-      # Play'e yuklenecek versionCode, AstroFelyx'in son versionCode'undan BUYUK olmali.
-      # Elle girersen o kullanilir; girmezsen: run numarasi + repo degiskeni
-      # VERSION_CODE_OFFSET (Settings > Secrets and variables > Actions > Variables).
-      - name: Build numarasi
-        env:
-          INPUT_BN: ${{ inputs.build_number }}
-          OFFSET: ${{ vars.VERSION_CODE_OFFSET }}
-          RUN_NO: ${{ github.run_number }}
-        run: |
-          if [ -n "$INPUT_BN" ]; then
-            BN="$INPUT_BN"
-          else
-            BN=$(( RUN_NO + ${OFFSET:-0} ))
-          fi
-          echo "BUILD_NUMBER=$BN" >> "$GITHUB_ENV"
-          echo "versionCode: $BN"
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.47.x'
           cache: true
 
-      - name: Bagimliliklar
-        run: flutter pub get
+      # google-services.json: repoda android/app/google-services.json varsa
+      # secret GEREKMEZ. GOOGLE_SERVICES_JSON_B64 secret'i tanimliysa o kullanilir.
+      - name: google-services.json
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON_B64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > android/app/google-services.json
+          elif [ ! -f android/app/google-services.json ]; then
+            echo "HATA: google-services.json repoda yok ve secret de tanimli degil." && exit 1
+          fi
 
-      - name: Testler (basarisiz olursa build'i durdurmaz)
-        continue-on-error: true
-        run: flutter test
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      - name: AAB (imzasiz/debug imzali; Play'e yuklemeden once bilgisayarda imzalanacak)
-        run: flutter build appbundle --release --build-number=$BUILD_NUMBER
+      # APK: key.properties yok => Flutter'in otomatik DEBUG imzasi (telefona kurulur).
+      - name: APK (debug imzali)
+        run: flutter build apk --release
 
-      - name: APK (telefonda deneme)
-        run: flutter build apk --release --build-number=$BUILD_NUMBER
+      - name: Imzayi dogrula
+        run: |
+          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Dosyalari yukle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      # AAB (istege bagli): IMZASIZ uretilir, bilgisayarda jarsigner ile imzalarsin.
+      - name: AAB (imzasiz)
+        if: ${{ inputs.build_aab == true }}
+        run: flutter build appbundle --release
+        env:
+          UNSIGNED_RELEASE: 'true'
+
+      - name: AAB yukle
+        if: ${{ inputs.build_aab == true }}
         uses: actions/upload-artifact@v4
         with:
-          name: world-merge-build-${{ env.BUILD_NUMBER }}
-          path: |
-            build/app/outputs/bundle/release/app-release.aab
-            build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 30
+          name: app-release-aab-unsigned
+          path: build/app/outputs/bundle/release/app-release.aab
