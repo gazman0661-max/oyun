@@ -2050,12 +2050,29 @@ class _GameOverDialog extends StatelessWidget {
             child: CelebrationFx(level: fxLevel, sound: isRecord),
           ),
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 380),
-                  child: Column(
+            // Kaydirma YOK: icerik her ekranda, ne kadar yer varsa ona
+            // sigacak sekilde olceklenir (butonlar daima gorunur).
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final w = min(380.0, max(240.0, box.maxWidth - 48));
+                // Kisa ekranlarda gorselleri kucult; FittedBox son guvenlik
+                // agi olarak kalan farki olcekler.
+                final compact = box.maxHeight < 720;
+                final tiny = box.maxHeight < 560;
+                final planetBox = tiny ? 96.0 : (compact ? 136.0 : 190.0);
+                final raysSize = planetBox * 1.2;
+                final planetSize = planetBox * 0.55;
+                final titleSize = tiny ? 28.0 : (compact ? 32.0 : 38.0);
+                final scoreSize = tiny ? 42.0 : (compact ? 48.0 : 58.0);
+                final gap = tiny ? 6.0 : (compact ? 10.0 : 14.0);
+                return Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: SizedBox(
+                        width: w,
+                        child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Baslik
@@ -2069,10 +2086,10 @@ class _GameOverDialog extends StatelessWidget {
                           child: Text(
                             isRecord ? t('rc_congrats') : title,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,
-                              fontSize: 38,
+                              fontSize: titleSize,
                               shadows: [
                                 Shadow(
                                   color: Color(0xFFFF5CC8),
@@ -2098,17 +2115,17 @@ class _GameOverDialog extends StatelessWidget {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 10),
+                      SizedBox(height: gap - 4),
                       // En yuksek gezegen + arkasinda isik huzmeleri
                       PopIn(
                         delay: const Duration(milliseconds: 250),
                         child: SizedBox(
-                          height: 190,
+                          height: planetBox,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
-                              const RewardRays(size: 230),
-                              _PlanetIcon(tier: bestTier, size: 104),
+                              RewardRays(size: raysSize),
+                              _PlanetIcon(tier: bestTier, size: planetSize),
                             ],
                           ),
                         ),
@@ -2138,10 +2155,10 @@ class _GameOverDialog extends StatelessWidget {
                         duration: Duration(
                           milliseconds: (900 + score ~/ 8).clamp(900, 1800),
                         ),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 58,
+                          fontSize: scoreSize,
                           height: 1.05,
                           shadows: [
                             Shadow(color: Color(0xFFFFB020), blurRadius: 22),
@@ -2174,7 +2191,7 @@ class _GameOverDialog extends StatelessWidget {
                         ),
                       ),
                       if (hasReward) ...[
-                        const SizedBox(height: 14),
+                        SizedBox(height: gap),
                         ValueListenableBuilder<int>(
                           valueListenable: doubledN ?? _noDouble,
                           builder: (context, d, _) {
@@ -2224,7 +2241,7 @@ class _GameOverDialog extends StatelessWidget {
                         ),
                       ],
                       if (xp > 0) ...[
-                        const SizedBox(height: 14),
+                        SizedBox(height: gap),
                         PopIn(
                           delay: const Duration(milliseconds: 2300),
                           child: Container(
@@ -2265,7 +2282,7 @@ class _GameOverDialog extends StatelessWidget {
                           builder: (context, d, _) {
                             if (d > 0) return const SizedBox.shrink();
                             return Padding(
-                              padding: const EdgeInsets.only(top: 14),
+                              padding: EdgeInsets.only(top: gap),
                               child: SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton(
@@ -2293,7 +2310,7 @@ class _GameOverDialog extends StatelessWidget {
                             );
                           },
                         ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: gap),
                       if (canContinue)
                         SizedBox(
                           width: double.infinity,
@@ -2351,9 +2368,12 @@ class _GameOverDialog extends StatelessWidget {
                         ),
                       ),
                     ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
         ],
