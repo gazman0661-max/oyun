@@ -1,16 +1,20 @@
-name: Build
+name: Android Build
 
-# Elle: Actions > Build > Run workflow
-# Otomatik: main/master'a push
-# Her calismada hem APK hem AAB uretir.
 on:
-  workflow_dispatch:
   push:
     branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    name: Debug APK + Release AAB (unsigned)
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -22,46 +26,28 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.x'
           cache: true
-
-      # google-services.json: repoda android/app/google-services.json varsa
-      # secret GEREKMEZ. GOOGLE_SERVICES_JSON_B64 secret'i tanimliysa o kullanilir.
-      - name: google-services.json
-        env:
-          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
-        run: |
-          if [ -n "$GOOGLE_SERVICES_JSON_B64" ]; then
-            echo "$GOOGLE_SERVICES_JSON_B64" | base64 -d > android/app/google-services.json
-          elif [ ! -f android/app/google-services.json ]; then
-            echo "HATA: google-services.json repoda yok ve secret de tanimli degil." && exit 1
-          fi
 
       - run: flutter --version
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
-      # APK: key.properties yok => Flutter'in otomatik DEBUG imzasi (telefona kurulur).
-      - name: APK (debug imzali)
-        run: flutter build apk --release
+      # Debug APK: Android'in otomatik debug anahtarıyla imzalanır
+      - name: Debug APK
+        run: flutter build apk --debug --build-number=${{ github.run_number }}
 
-      - name: Imzayi dogrula
-        run: |
-          APKSIGNER=$(ls $ANDROID_HOME/build-tools/*/apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
-
-      # AAB: IMZASIZ uretilir (UNSIGNED_RELEASE), bilgisayarda jarsigner ile imzalarsin.
-      - name: AAB (imzasiz)
-        run: flutter build appbundle --release
-        env:
-          UNSIGNED_RELEASE: 'true'
+      # Release AAB: imzasız (manuel imzalanacak)
+      - name: Release AAB (unsigned)
+        run: flutter build appbundle --release --build-number=${{ github.run_number }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: dergah-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-release-aab-unsigned
+          name: dergah-release-aab-unsigned
           path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30
