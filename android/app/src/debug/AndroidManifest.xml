@@ -1,5 +1,0 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Sadece debug modda: hot reload / VM service baglantisi icin gereklidir.
-         Release build'e dahil edilmez. -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-</manifest>
