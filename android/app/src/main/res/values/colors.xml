@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- lib/theme/app_colors.dart icindeki AppColors.spaceTop (#05061A)
+         ile ayni renk; boylece acilis ekrani ile Flutter arayuzu arasinda
+         renk atlamasi olmaz. -->
+    <color name="launch_background_color">#05061A</color>
+</resources>
